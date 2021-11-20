@@ -34,7 +34,7 @@ public class Main {
         Box<Orange> orangeBox = new Box<>();
         orangeBox.add(new Orange());
         System.out.println(orangeBox.getWeight());
-        System.out.println(appleBox.compare(orangeBox));
+        System.out.println(appleBox.isGreather(orangeBox));
 
     }
 

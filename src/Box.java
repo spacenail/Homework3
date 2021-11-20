@@ -45,7 +45,7 @@ public class Box<I extends Fruit> {
     }
     */
 
-    public boolean compare(Box<?> anotherBox){
+    public boolean isGreather(Box<?> anotherBox){
         return this.getWeight() > anotherBox.getWeight();
     }
 
