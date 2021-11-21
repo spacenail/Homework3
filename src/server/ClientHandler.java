@@ -38,6 +38,8 @@ public class ClientHandler {
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
                 }
+            }catch (SQLException e){
+                e.printStackTrace();
             }
     }
 
@@ -47,7 +49,7 @@ public class ClientHandler {
 
     private void doAuthentication() {
         try {
-            socket.setSoTimeout(12000);
+            socket.setSoTimeout(120000);
             performAuthentication();
             socket.setSoTimeout(0);
         }catch (SocketTimeoutException se) {
@@ -97,13 +99,31 @@ public class ClientHandler {
         }
     }
 
-    public void readMessage() throws IOException {
-            server.broadcastMessage(String.format("[%s]: %s", this.name,in.readUTF()));
+    public void readMessage(String input) throws IOException {
+            server.broadcastMessage(String.format("[%s]: %s", this.name,input));
     }
 
-    public void listenMessages() throws IOException {
+    public void listenMessages() throws IOException, SQLException {
         while (true) {
-            readMessage();
+            String inboundMessage = in.readUTF();
+            if (inboundMessage.startsWith("-cname")) {
+                // valid request sample: -cname newusername
+                String[] credentials = inboundMessage.split("\\s");
+                changeUserName(credentials[1]);
+            }else {
+                readMessage(inboundMessage);
+            }
         }
+    }
+
+    public synchronized boolean changeUserName(String newUserName) throws SQLException {
+        if(UsersDB.changeUsername(this.getName(),newUserName)){
+            server.removeClient(this);
+            name = newUserName;
+            server.addClient(this);
+            return true;
+        }
+        System.out.println("Username not change!");
+        return false;
     }
 }
