@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClientHandler {
@@ -48,14 +50,16 @@ public class ClientHandler {
             socket.setSoTimeout(12000);
             performAuthentication();
             socket.setSoTimeout(0);
-        }catch (SocketTimeoutException se){
+        }catch (SocketTimeoutException se) {
             throw new RuntimeException("Timeout - 120s for authentication complete!");
+        }catch (SQLException e){
+            e.getStackTrace();
         } catch (IOException ex) {
             throw new RuntimeException("Something went wrong during a client authentication.",ex);
         }
     }
 
-    private void performAuthentication() throws IOException {
+    private void performAuthentication() throws IOException, SQLException {
         while (true) {
             String inboundMessage = in.readUTF();
             if (inboundMessage.startsWith("-auth")) {
@@ -63,23 +67,21 @@ public class ClientHandler {
                 String[] credentials = inboundMessage.split("\\s");
 
                 AtomicBoolean isSuccess = new AtomicBoolean(false);
-                server.getAuthenticationService()
-                        .findUsernameByLoginAndPassword(credentials[1], credentials[2])
-                        .ifPresentOrElse(
-                                username -> {
-                                    if (!server.isUsernameOccupied(username)) {
-                                        server.broadcastMessage(String.format("User[%s] is logged in", username));
-                                        name = username;
-                                        server.addClient(this);
-                                        isSuccess.set(true);
-                                        sendMessage("Welcome to chat!");
-                                    } else {
-                                        sendMessage("Current username is already occupied.");
-                                    }
-                                },
-                                () -> sendMessage("Bad credentials.")
-                        );
-
+                Optional<String> optionalUsername = UsersDB.getUsernameByLoginAndPassword(credentials[1], credentials[2]);
+                if (optionalUsername.isPresent()) {
+                    String username = optionalUsername.get();
+                    if (!server.isUsernameOccupied(username)) {
+                        server.broadcastMessage(String.format("User[%s] is logged in", username));
+                        name = username;
+                        server.addClient(this);
+                        isSuccess.set(true);
+                        sendMessage("Welcome to chat!");
+                    } else {
+                        sendMessage("Current username is already occupied.");
+                    }
+                } else {
+                    sendMessage("Bad credentials.");
+                }
                 if (isSuccess.get()) break;
             } else {
                 sendMessage("You need to be logged-in.");

@@ -1,16 +1,14 @@
 package server;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.util.Optional;
 
 
-public class AuthServiceDB {
+public class UsersDB {
 private static Connection connection;
 private static Statement statement;
 
-    private AuthServiceDB() {
+    private UsersDB() {
     }
 
     public static void connect(){
@@ -40,6 +38,13 @@ private static Statement statement;
         }
     }
 
-
-
+    public static Optional<String> getUsernameByLoginAndPassword(String login, String password) throws SQLException {
+            String sqlQuery = "SELECT * FROM users WHERE login='" + login + "' AND password='" + password + "';";
+            ResultSet resultSet = statement.executeQuery(sqlQuery);
+            if(resultSet.next()) {
+                return Optional.of(resultSet.getString("username"));
+            }else {
+                return Optional.empty();
+            }
+    }
 }

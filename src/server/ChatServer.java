@@ -9,12 +9,11 @@ import java.util.Set;
 public class ChatServer {
 
     private final ServerSocket socket;
-    private final AuthenticationService authenticationService;
     private final Set<ClientHandler> loggedClients;
 
     public ChatServer() {
         try {
-            authenticationService = new AuthenticationService();
+            UsersDB.connect();
             loggedClients = new HashSet<>();
             this.socket = new ServerSocket(8888);
 
@@ -26,11 +25,9 @@ public class ChatServer {
             }
         } catch (IOException e) {
             throw new RuntimeException("Something went wrong during connection establishing.", e);
+        }finally {
+            UsersDB.disconnect();
         }
-    }
-
-    public AuthenticationService getAuthenticationService() {
-        return authenticationService;
     }
 
     public synchronized void addClient(ClientHandler client) {
