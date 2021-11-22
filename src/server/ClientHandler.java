@@ -69,7 +69,7 @@ public class ClientHandler {
                 String[] credentials = inboundMessage.split("\\s");
 
                 AtomicBoolean isSuccess = new AtomicBoolean(false);
-                Optional<String> optionalUsername = UsersDB.getUsernameByLoginAndPassword(credentials[1], credentials[2]);
+                Optional<String> optionalUsername = DB.getUsernameByLoginAndPassword(credentials[1], credentials[2]);
                 if (optionalUsername.isPresent()) {
                     String username = optionalUsername.get();
                     if (!server.isUsernameOccupied(username)) {
@@ -109,21 +109,12 @@ public class ClientHandler {
             if (inboundMessage.startsWith("-cname")) {
                 // valid request sample: -cname newusername
                 String[] credentials = inboundMessage.split("\\s");
-                changeUserName(credentials[1]);
+                server.changeUserName(name,credentials[1]);
             }else {
                 readMessage(inboundMessage);
             }
         }
     }
 
-    public synchronized boolean changeUserName(String newUserName) throws SQLException {
-        if(UsersDB.changeUsername(this.getName(),newUserName)){
-            server.removeClient(this);
-            name = newUserName;
-            server.addClient(this);
-            return true;
-        }
-        System.out.println("Username not change!");
-        return false;
-    }
+
 }

@@ -3,47 +3,54 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 public class ChatServer {
 
     private final ServerSocket socket;
-    private final Set<ClientHandler> loggedClients;
+    private Set<ClientHandler> connectedUsers;
 
     public ChatServer() {
         try {
-            UsersDB.connect();
-            loggedClients = new HashSet<>();
+            DB.connect();
+            connectedUsers = new HashSet<>();
             this.socket = new ServerSocket(8888);
 
             while (true) {
                 System.out.println("Waiting for a new connection...");
                 Socket client = socket.accept();
-                System.out.println("Client accepted.");
                 new Thread(() -> new ClientHandler(client, this)).start();
+                System.out.println("Client accepted.");
             }
         } catch (IOException e) {
             throw new RuntimeException("Something went wrong during connection establishing.", e);
         }finally {
-            UsersDB.disconnect();
+            DB.disconnect();
         }
     }
 
     public synchronized void addClient(ClientHandler client) {
-        loggedClients.add(client);
+        connectedUsers.add(client);
+        DB.addUserToLoggedUsers(client.getName());
     }
 
     public synchronized void removeClient(ClientHandler client) {
-        loggedClients.remove(client);
+        connectedUsers.remove(client);
+        DB.deleteUserFromLoggedUsers(client.getName());
     }
 
-    public synchronized boolean isUsernameOccupied(String username) {
-        return loggedClients.stream()
-                .anyMatch(c -> c.getName().equals(username));
+    public boolean isUsernameOccupied(String username) {
+    return DB.isUsernameOccupied(username);
     }
+
+    public synchronized void changeUserName(String username,String newUserName) {
+        DB.changeUsername(username, newUserName);
+    }
+
 
     public synchronized void broadcastMessage(String message) {
-        loggedClients.forEach(ch -> ch.sendMessage(message));
+        connectedUsers.forEach(ch -> ch.sendMessage(message));
     }
 }
