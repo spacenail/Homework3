@@ -63,13 +63,14 @@ public class ClientHandler {
 
     private void performAuthentication() throws IOException, SQLException {
         while (true) {
+            sendMessage("Please log in: -auth login password");
             String inboundMessage = in.readUTF();
             if (inboundMessage.startsWith("-auth")) {
                 // valid request sample: -auth l1 p1
                 String[] credentials = inboundMessage.split("\\s");
 
                 AtomicBoolean isSuccess = new AtomicBoolean(false);
-                Optional<String> optionalUsername = DB.getUsernameByLoginAndPassword(credentials[1], credentials[2]);
+                Optional<String> optionalUsername = server.getUsername(credentials[1], credentials[2]);
                 if (optionalUsername.isPresent()) {
                     String username = optionalUsername.get();
                     if (!server.isUsernameOccupied(username)) {
@@ -77,7 +78,7 @@ public class ClientHandler {
                         name = username;
                         server.addClient(this);
                         isSuccess.set(true);
-                        sendMessage("Welcome to chat!");
+                        sendMessage("Welcome to chat, " + name);
                     } else {
                         sendMessage("Current username is already occupied.");
                     }
@@ -85,8 +86,6 @@ public class ClientHandler {
                     sendMessage("Bad credentials.");
                 }
                 if (isSuccess.get()) break;
-            } else {
-                sendMessage("You need to be logged-in.");
             }
         }
     }
@@ -110,6 +109,7 @@ public class ClientHandler {
                 // valid request sample: -cname newusername
                 String[] credentials = inboundMessage.split("\\s");
                 server.changeUserName(name,credentials[1]);
+                name = credentials[1];
             }else {
                 readMessage(inboundMessage);
             }

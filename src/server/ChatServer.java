@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class ChatServer {
@@ -47,6 +48,10 @@ public class ChatServer {
 
     public synchronized void changeUserName(String username,String newUserName) {
         DB.changeUsername(username, newUserName);
+    }
+
+    public Optional<String> getUsername(String login, String password){
+        return DB.getUsernameByLoginAndPassword(login,password);
     }
 
 

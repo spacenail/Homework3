@@ -85,7 +85,7 @@ private static Statement statement;
         boolean status = false;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT logged_users SET username = ?");
+                    "INSERT INTO logged_users(username) VALUES (?);");
             preparedStatement.setString(1, user);
             status = preparedStatement.execute();
         }catch (SQLException e){
