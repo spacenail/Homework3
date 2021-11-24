@@ -39,9 +39,8 @@ private static Statement statement;
     }
 
     static Optional<String> getUsernameByLoginAndPassword(String login, String password){
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "SELECT username FROM users WHERE login=? AND password=?;");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
+                    "SELECT username FROM users WHERE login=? AND password=?;")){
             preparedStatement.setString(1, login);
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -56,8 +55,7 @@ private static Statement statement;
 
     static boolean isUsernameOccupied(String username) {
         boolean status = false;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM logged_users WHERE username=?;");
+        try (PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM logged_users WHERE username=?;")){
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
             status = resultSet.next();
@@ -69,9 +67,8 @@ private static Statement statement;
 
     static boolean changeUsername(String currentUserName,String newUserName){
         boolean status = false;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "UPDATE users SET username = ? WHERE username = ?");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
+                    "UPDATE users SET username = ? WHERE username = ?")){
             preparedStatement.setString(2, currentUserName);
             preparedStatement.setString(1, newUserName);
             status = preparedStatement.execute();
@@ -83,9 +80,8 @@ private static Statement statement;
 
     static boolean addUserToLoggedUsers(String user) {
         boolean status = false;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO logged_users(username) VALUES (?);");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
+                    "INSERT INTO logged_users(username) VALUES (?);")){
             preparedStatement.setString(1, user);
             status = preparedStatement.execute();
         }catch (SQLException e){
@@ -96,9 +92,8 @@ private static Statement statement;
 
     static boolean deleteUserFromLoggedUsers(String user){
         boolean status = false;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "DELETE FROM logged_users WHERE username = ?");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(
+                    "DELETE FROM logged_users WHERE username = ?")){
             preparedStatement.setString(1, user);
             status = preparedStatement.execute();
         }catch (SQLException e){
