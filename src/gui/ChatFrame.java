@@ -18,10 +18,11 @@ public class ChatFrame {
     }
 
     private void init() {
+        // задаем параметры окна
         mainFrame.setBounds(new Rectangle(400, 500));
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainFrame.setTitle("Chat v1.0");
-
+        // добавляем поле вывода во все окно и строку ввода с кнопкой в нижней части
         mainFrame.add(chattingFrame.getFrame(), BorderLayout.CENTER);
         mainFrame.add(sendingFrame.getFrame(), BorderLayout.SOUTH);
 
