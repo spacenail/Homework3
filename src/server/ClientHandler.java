@@ -78,7 +78,7 @@ public class ClientHandler {
                         name = username;
                         server.addClient(this);
                         isSuccess.set(true);
-                        sendMessage("Welcome to chat, " + name);
+                        sendMessage("[SERVER]Welcome to chat, " + credentials[1]);
                     } else {
                         sendMessage("Current username is already occupied.");
                     }
