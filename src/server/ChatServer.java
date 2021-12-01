@@ -3,17 +3,25 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatServer {
 
     private final ServerSocket socket;
     private Set<ClientHandler> connectedUsers;
 
+    /*
+    2. На серверной стороне сетевого чата реализовать управление потоками через ExecutorService.
+     */
+
     public ChatServer() {
+        int procNumber = Integer.parseInt(System.getenv("NUMBER_OF_PROCESSORS"));
+        ExecutorService executorService = Executors.newFixedThreadPool(procNumber);
+
         try {
             DB.connect();
             connectedUsers = new HashSet<>();
@@ -22,13 +30,16 @@ public class ChatServer {
             while (true) {
                 System.out.println("Waiting for a new connection...");
                 Socket client = socket.accept();
-                new Thread(() -> new ClientHandler(client, this)).start();
-                System.out.println("Client accepted.");
+                executorService.execute(() -> {
+                    System.out.println("Client accepted.");
+                    new ClientHandler(client, this);
+                });
             }
         } catch (IOException e) {
             throw new RuntimeException("Something went wrong during connection establishing.", e);
         }finally {
             DB.disconnect();
+            executorService.shutdown();
         }
     }
 
