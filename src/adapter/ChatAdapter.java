@@ -28,7 +28,9 @@ public class ChatAdapter {
                     @Override
                     public void accept(Boolean exitApp) {
                         if (exitApp) {
-                            chatHistory.close();
+                            if (chatHistory != null) {
+                                chatHistory.close();
+                            }
                         }
                     }
                 });
