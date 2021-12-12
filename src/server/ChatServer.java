@@ -14,10 +14,6 @@ public class ChatServer {
     private final ServerSocket socket;
     private Set<ClientHandler> connectedUsers;
 
-    /*
-    2. На серверной стороне сетевого чата реализовать управление потоками через ExecutorService.
-     */
-
     public ChatServer() {
         int procNumber = Integer.parseInt(System.getenv("NUMBER_OF_PROCESSORS"));
         ExecutorService executorService = Executors.newFixedThreadPool(procNumber);
