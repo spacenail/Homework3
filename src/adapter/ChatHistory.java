@@ -2,6 +2,9 @@ package adapter;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 class ChatHistory {
     private String login;
