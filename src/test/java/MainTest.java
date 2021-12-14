@@ -12,6 +12,16 @@ import java.util.stream.Stream;
 class MainTest {
 private static Main main;
 
+    private static Stream<Arguments> dataForIsArrayContains() {
+        List<Arguments> testDataList = new ArrayList<>();
+        testDataList.add(Arguments.arguments(new int[]{1,2,3,4,5},true));
+        testDataList.add(Arguments.arguments(new int[]{0,2,4,6,2},false));
+        testDataList.add(Arguments.arguments(new int[]{1,3,6,9}, false));
+        testDataList.add(Arguments.arguments(new int[]{2,3,5,0,10},false));
+        testDataList.add(Arguments.arguments(new int[]{0,-2,3,4,1},true));
+        return testDataList.stream();
+    }
+
     private static Stream<Arguments> dataForArrayFilter() {
         List<Arguments> testDataList = new ArrayList<>();
         testDataList.add(Arguments.arguments(new int[]{1,2,4,4,2,3,4,1,7},new int[]{1,7}));
@@ -36,6 +46,12 @@ private static Main main;
     public void testArrayFilterException(){
         Assertions.assertThrows(RuntimeException.class,
                 ()-> main.arrayFilter(new int[]{1,1}));
+    }
+
+    @ParameterizedTest
+    @MethodSource("dataForIsArrayContains")
+    public void testIsArrayContains(int[] array, boolean result){
+        Assertions.assertEquals(result,main.isArrayContains(array));
     }
 
 }
