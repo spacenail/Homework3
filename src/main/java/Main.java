@@ -1,3 +1,7 @@
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class Main {
     public static void main(String[] args) {
         /*
@@ -14,5 +18,14 @@ public class Main {
 одной четверки или единицы, то метод вернет false; Написать набор тестов для этого метода
 (по 3-4 варианта входных данных).
          */
+    }
+
+    public int[] arrayFilter(int[] array) {
+        List<Integer> list = Arrays.stream(array).boxed().collect(Collectors.toList());
+        int position = list.lastIndexOf(4);
+        if(position == -1){
+            throw new RuntimeException("Array does not contain 4");
+        }
+        return Arrays.copyOfRange(array,position + 1,array.length);
     }
 }
