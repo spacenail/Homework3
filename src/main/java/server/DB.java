@@ -13,7 +13,7 @@ private static Statement statement;
 
     static void connect(){
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:users.db");
+            connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/users.db");
             statement = connection.createStatement();
         } catch (SQLException e) {
             e.printStackTrace();

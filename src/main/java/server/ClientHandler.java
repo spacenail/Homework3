@@ -1,4 +1,7 @@
 package server;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,6 +18,7 @@ public class ClientHandler {
     private final DataInputStream in;
     private final DataOutputStream out;
     private String name;
+    private static final Logger LOGGER = LogManager.getLogger(ChatServer.class.getName());
 
     public ClientHandler(Socket socket, ChatServer server) {
         this.socket = socket;
@@ -24,6 +28,7 @@ public class ClientHandler {
             out = new DataOutputStream(socket.getOutputStream());
 
         } catch (IOException ex) {
+            LOGGER.error("Ошибка при создании соединения с клиентом");
             throw new RuntimeException("Something went wrong during a client connection establishing.");
         }
 
@@ -53,10 +58,12 @@ public class ClientHandler {
             performAuthentication();
             socket.setSoTimeout(0);
         }catch (SocketTimeoutException se) {
+            LOGGER.error("Истекло время для авторизации клиента!");
             throw new RuntimeException("Timeout - 120s for authentication complete!");
         }catch (SQLException e){
             e.getStackTrace();
         } catch (IOException ex) {
+            LOGGER.error("Что-то пошло не так при подключении клиента");
             throw new RuntimeException("Something went wrong during a client authentication.",ex);
         }
     }
@@ -80,9 +87,11 @@ public class ClientHandler {
                         isSuccess.set(true);
                         sendMessage("[SERVER]Welcome to chat, " + credentials[1]);
                     } else {
+                        LOGGER.info(username + " уже авторизован!");
                         sendMessage("Current username is already occupied.");
                     }
                 } else {
+                    LOGGER.info("Пользователь ввел неверные данные для авторизации");
                     sendMessage("Bad credentials.");
                 }
                 if (isSuccess.get()) break;
@@ -99,6 +108,7 @@ public class ClientHandler {
     }
 
     public void readMessage(String input) throws IOException {
+            LOGGER.info("Пользователь " + this.name + " отправил сообщение: " + input);
             server.broadcastMessage(String.format("[%s]: %s", this.name,input));
     }
 
