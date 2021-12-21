@@ -30,8 +30,6 @@ public class Main {
     }
 
     public boolean isArrayContains(int[] array){
-        if(Arrays.stream(array).anyMatch(x -> x == 4) && Arrays.stream(array).anyMatch(x -> x == 1)){
-            return true;
-        } else return false;
+        return Arrays.stream(array).anyMatch(x -> x == 4) && Arrays.stream(array).anyMatch(x -> x == 1);
     }
 }
